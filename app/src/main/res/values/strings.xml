@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">FrappTest</string>
+
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="logo">Logo</string>
+    <string name="views">2k Views</string>
 </resources>
