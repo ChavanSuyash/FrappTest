@@ -10,11 +10,15 @@ public class HomeContract {
         void setProgressIndicator(boolean active);
 
         void showInternshipsAndMissions(List<DataModel> dataModelList);
+
+        void removeItem(int position);
     }
 
     interface UserActionsListener {
 
         void loadInternshipsAndMissions();
+
+        void addToFavourite(int position, DataModel dataModel);
 
     }
 }

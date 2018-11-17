@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.frapp.test.R;
 import com.frapp.test.data.DataModel;
+import com.frapp.test.data.repository.DataRepository;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -41,13 +43,20 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActionsListener = new HomePresenter(getActivity(), this);
-        mListAdapter = new ListAdapter(new ArrayList<>(0), mItemListener);
+
+        mListAdapter = new ListAdapter(new ArrayList<>(0), mActionsListener);
+
         mActionsListener.loadInternshipsAndMissions();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Nullable
@@ -72,14 +81,6 @@ public class HomeFragment extends Fragment implements HomeContract.View {
     }
 
 
-    ListItemListener mItemListener = new ListItemListener() {
-        @Override
-        public void onItemClick(DataModel clickedItem) {
-
-        }
-    };
-
-
     @Override
     public void setProgressIndicator(boolean status) {
         if (getView() == null) {
@@ -102,15 +103,20 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         mListAdapter.replaceData(dataModelList);
     }
 
+    @Override
+    public void removeItem(int position) {
+        mListAdapter.removeItem(position);
+    }
+
 
     private static class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
         List<DataModel> mList;
-        ListItemListener mItemlistener;
+        HomeContract.UserActionsListener mActionListener;
 
-        public ListAdapter(List<DataModel> list, ListItemListener listItemListener){
+        public ListAdapter(List<DataModel> list, HomeContract.UserActionsListener userActionListener){
             this.mList = list;
-            this.mItemlistener = listItemListener;
+            this.mActionListener = userActionListener;
         }
 
         @NonNull
@@ -144,6 +150,11 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             notifyDataSetChanged();
         }
 
+        public void removeItem(int position){
+            mList.remove(position);
+            notifyItemRemoved(position);
+        }
+
         private void setList(List<DataModel> dataModelList) {
             mList = dataModelList;
         }
@@ -174,15 +185,9 @@ public class HomeFragment extends Fragment implements HomeContract.View {
             @Override
             public void onClick(View view) {
                 int position = getAdapterPosition();
-                mList.remove(position);
-                notifyItemRemoved(position);
+                mActionListener.addToFavourite(position, mList.get(position));
             }
         }
 
-    }
-
-    public interface ListItemListener {
-
-        void onItemClick(DataModel clickedItem);
     }
 }

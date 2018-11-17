@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.android.volley.VolleyError;
 import com.frapp.test.data.DataModel;
+import com.frapp.test.data.repository.DataRepository;
 import com.frapp.test.data.webservice.NetworkRequest;
 import com.frapp.test.data.webservice.NetworkRequestContract;
 import com.frapp.test.util.Constants;
@@ -23,6 +24,7 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
 
     private final HomeContract.View mHomeView;
     private final NetworkRequest networkRequest;
+    private DataRepository dataRepository;
 
     private int requestPendingCount = 4;
 
@@ -31,6 +33,13 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
     public HomePresenter(Context context, HomeContract.View homeView){
         this.mHomeView = homeView;
         networkRequest = new NetworkRequest(context);
+
+        dataRepository = new DataRepository();
+        dataRepository.open(context);
+    }
+
+    public void closeDataRepository() {
+        dataRepository.close();
     }
 
     @Override
@@ -40,6 +49,12 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
         networkRequest.add("http://54.169.233.100:8080/featured_missions.json", Constants.featuredMissions,this);
         networkRequest.add("http://54.169.233.100:8080/non_featured_internships.json",Constants.nonFeaturedInternships,this);
         networkRequest.add("http://54.169.233.100:8080/non_featured_missions.json", Constants.nonFeaturedMissions,this);
+    }
+
+    @Override
+    public void addToFavourite(int position, DataModel dataModel) {
+        dataRepository.insertFavouriteItem(dataModel);
+        mHomeView.removeItem(position);
     }
 
     @Override
@@ -84,6 +99,12 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
                 requestPendingCount -= 1;
                 if(requestPendingCount == 0){
                     //do the listing
+                    List<DataModel> featuredList = Utils.addTwoFeaturedListAndSort(featuredInternships,featuredMissions);
+                    List<DataModel> nonFeaturedList = Utils.addTwoNonFeaturedListAndSort(nonFeaturedInternships,nonFeaturedMissions);
+
+                    List<DataModel> finalList = Utils.getInterleavedFinalLists(featuredList,nonFeaturedList);
+
+                    mHomeView.showInternshipsAndMissions(finalList);
                     mHomeView.setProgressIndicator(false);
                 }
 
