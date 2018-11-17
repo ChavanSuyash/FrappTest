@@ -54,7 +54,6 @@ public class DataRepository {
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from " + Database.FAVOURITE_LIST_TABLE + " WHERE "
                 + Database.TYPE + " = '" + Constants.featuredInternships + "' or " + Database.TYPE + " = '" + Constants.nonFeaturedInternships + "'", null);
-        Log.e("FI",cursor.getCount() + "**");
         while (cursor.moveToNext()) {
             title = cursor.getString(cursor.getColumnIndex(Database.TITLE));
             description = cursor.getString(cursor.getColumnIndex(Database.DESCRIPTION));
@@ -78,7 +77,6 @@ public class DataRepository {
 
         Cursor cursor = sqLiteDatabase.rawQuery("select * from " + Database.FAVOURITE_LIST_TABLE + " WHERE "
                 + Database.TYPE + " = '" + Constants.featuredMissions + "' or " + Database.TYPE + " = '" + Constants.nonFeaturedMissions + "'", null);
-        Log.e("FM",cursor.getCount() + "**");
         while (cursor.moveToNext()) {
             title = cursor.getString(cursor.getColumnIndex(Database.TITLE));
             description = cursor.getString(cursor.getColumnIndex(Database.DESCRIPTION));

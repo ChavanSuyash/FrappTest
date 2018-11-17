@@ -15,8 +15,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.DataTruncation;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.frapp.test.util.Utils.addTwoFeaturedListAndSort;
 
@@ -26,7 +29,7 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
     private final NetworkRequest networkRequest;
     private DataRepository dataRepository;
 
-    private int requestPendingCount = 4;
+    private int requestPendingCount;
 
     private List<DataModel> nonFeaturedInternships, nonFeaturedMissions, featuredInternships, featuredMissions;
 
@@ -44,6 +47,7 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
 
     @Override
     public void loadInternshipsAndMissions() {
+        requestPendingCount = 4;
         mHomeView.setProgressIndicator(true);
         networkRequest.add("http://54.169.233.100:8080/featured_internships.json ", Constants.featuredInternships,this);
         networkRequest.add("http://54.169.233.100:8080/featured_missions.json", Constants.featuredMissions,this);
@@ -102,7 +106,11 @@ public class HomePresenter implements HomeContract.UserActionsListener, NetworkR
                     List<DataModel> featuredList = Utils.addTwoFeaturedListAndSort(featuredInternships,featuredMissions);
                     List<DataModel> nonFeaturedList = Utils.addTwoNonFeaturedListAndSort(nonFeaturedInternships,nonFeaturedMissions);
 
-                    List<DataModel> finalList = Utils.getInterleavedFinalLists(featuredList,nonFeaturedList);
+                    Map<String,List<DataModel>> toRemoveItemListMap = new LinkedHashMap<>();
+                    toRemoveItemListMap.put(Constants.internships, dataRepository.getFavouriteInternships());
+                    toRemoveItemListMap.put(Constants.missions, dataRepository.getFavouriteMissions());
+
+                    List<DataModel> finalList = Utils.getInterleavedFinalLists(featuredList,nonFeaturedList,toRemoveItemListMap);
 
                     mHomeView.showInternshipsAndMissions(finalList);
                     mHomeView.setProgressIndicator(false);

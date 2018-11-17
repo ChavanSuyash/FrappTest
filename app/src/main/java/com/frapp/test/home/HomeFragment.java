@@ -45,13 +45,12 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         mActionsListener = new HomePresenter(getActivity(), this);
 
         mListAdapter = new ListAdapter(new ArrayList<>(0), mActionsListener);
-
-        mActionsListener.loadInternshipsAndMissions();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        mActionsListener.loadInternshipsAndMissions();
     }
 
     @Override
@@ -93,7 +92,13 @@ public class HomeFragment extends Fragment implements HomeContract.View {
         srl.post(new Runnable() {
             @Override
             public void run() {
-                srl.setRefreshing(status);
+                if(status){
+                    srl.setEnabled(true);
+                    srl.setRefreshing(status);
+                }else {
+                    srl.setRefreshing(status);
+                    srl.setEnabled(false);
+                }
             }
         });
     }
