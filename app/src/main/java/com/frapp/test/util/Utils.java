@@ -58,6 +58,7 @@ public class Utils {
                 result = getItemPositionInList(featuredList, toRemoveItem.get(i).getTitle(), toRemoveItem.get(i).getDescription());
                 if(result != -1){
                     featuredList.remove(position);
+                    continue;
                 }
 
                 result = getItemPositionInList(nonFeaturedList, toRemoveItem.get(i).getTitle(), toRemoveItem.get(i).getDescription());
